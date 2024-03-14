@@ -27,6 +27,7 @@ class KeycloakClient(object):
             'scope': 'openid',
         }
         r = requests.post(self.token_endpoint(realm), data=params).json()
+        print(r)
         headers = {
             'Authorization': ("Bearer %s" % r['access_token']),
             'Content-Type': 'application/json'
