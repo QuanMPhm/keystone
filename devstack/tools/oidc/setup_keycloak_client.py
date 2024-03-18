@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 
 KEYCLOAK_USERNAME = os.environ.get('KEYCLOAK_USERNAME')
 KEYCLOAK_PASSWORD = os.environ.get('KEYCLOAK_PASSWORD')
@@ -26,8 +27,21 @@ class KeycloakClient(object):
             'password': KEYCLOAK_PASSWORD,
             'scope': 'openid',
         }
-        r = requests.post(self.token_endpoint(realm), data=params).json()
-        print(r)
+        r = requests.post(self.token_endpoint(realm), data=params)
+        print(r.status_code, r.json())
+
+        count = 0
+        while r.status_code >= 400:
+            if count > 5:
+                break
+            else:
+                count = count + 1
+            print(r.json())
+            time.sleep(3)
+            r = requests.post(self.token_endpoint(realm), data=params)
+
+        r = r.json()
+
         headers = {
             'Authorization': ("Bearer %s" % r['access_token']),
             'Content-Type': 'application/json'
